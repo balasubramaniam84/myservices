@@ -1,57 +1,61 @@
 package com.techprimers.stock.dbservice.resource;
 
-import com.techprimers.stock.dbservice.model.Quote;
-import com.techprimers.stock.dbservice.model.Quotes;
-import com.techprimers.stock.dbservice.repository.QuotesRepository;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.techprimers.stock.dbservice.model.User;
+import com.techprimers.stock.dbservice.repository.UserRepository;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Api(value="Age DB REST Endpoint")
 @RestController
 @RequestMapping("/rest/db")
 public class DbServiceResource {
 
-    private QuotesRepository quotesRepository;
+	private UserRepository quotesRepository;
 
-    public DbServiceResource(QuotesRepository quotesRepository) {
-        this.quotesRepository = quotesRepository;
-    }
+	public DbServiceResource(UserRepository quotesRepository) {
+		this.quotesRepository = quotesRepository;
+	}
 
-    @GetMapping("/{username}")
-    public List<String> getQuotes(@PathVariable("username") final String username) {
+	@ApiOperation(value="returns User Model")
+	@GetMapping("/{username}")
+	public User getUser(@PathVariable("username") final String username) {
 
-        return getQuotesByUserName(username);
-    }
+		return getUserByUserName(username);
+	}
 
-    @PostMapping("/add")
-    public List<String> add(@RequestBody final Quotes quotes) {
+	@ApiOperation(value="returns List of Users")
+	@GetMapping("/list")
+	public List<User> getUserList() {
 
-        quotes.getQuotes()
-                .stream()
-                .map(quote -> new Quote(quotes.getUserName(), quote))
-                .forEach(quote -> quotesRepository.save(quote));
-        return getQuotesByUserName(quotes.getUserName());
-    }
+		return findAll();
+	}
+	
+	@ApiOperation(value="add and returns given User ")
+	@PostMapping("/add")
+	public User add(@RequestBody final User user) {
 
+		quotesRepository.save(user);
 
-    @PostMapping("/delete/{username}")
-    public List<String> delete(@PathVariable("username") final String username) {
+		return getUserByUserName(user.getUserName());
+	}
 
-        List<Quote> quotes = quotesRepository.findByUserName(username);
-        quotesRepository.delete(quotes);
+	private User getUserByUserName(@PathVariable("username") String username) {
+		return quotesRepository.findByUserName(username);
+	}
 
-        return getQuotesByUserName(username);
-    }
-
-
-    private List<String> getQuotesByUserName(@PathVariable("username") String username) {
-        return quotesRepository.findByUserName(username)
-                .stream()
-                .map(Quote::getQuote)
-                .collect(Collectors.toList());
-    }
-
-
-
+	private List<User> findAll(){
+		
+		return quotesRepository.findAll();
+	}
+	
 }
