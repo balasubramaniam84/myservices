@@ -19,6 +19,6 @@ zuul:
     db-service:
       path: /db-service/**
       url: http://localhost:8300
-    stock-service:
-      path: /stock-service/**
+    age-service:
+      path: /age-service/**
       url: http://localhost:8301
